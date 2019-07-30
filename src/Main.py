@@ -5,6 +5,9 @@ from flask import Flask, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 import magic
 
+# Temp, here to simulate polling client-server
+tempGlobalList = []
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///Database.db'
 # Remove annoying warning messange until next releas of SQLAlchemy
@@ -34,6 +37,7 @@ def index():
 def add():
     path = request.form['path']
     imagesList = exploreDir(path)
+    # Process image and add to db
     return render_template("add.html", path=path)
 
 def exploreDir(path):
@@ -54,5 +58,24 @@ def isImage(filepath):
         return mime.rsplit('/', 1)[1] in full_supported_formats
     except IndexError:
         return False
+
+def hashList(imagesList):
+    tempList = list()
+    for path in imagesList:
+        tempList.append(path)
+        tempGlobalStatus.append(path)
+    
+    for path in tempList:
+        print(path)
+        data = hashImage(path)
+        sleep(3)
+        #db.session.add(Files(path=path))
+        listGlobalStatus.remove(path)
+    
+    db.session.commit()
+
+def hashImage(file):
+    pass
+
 
 app.run(debug = True)
