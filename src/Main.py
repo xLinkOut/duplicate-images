@@ -24,14 +24,14 @@ db = SQLAlchemy(app)
 # Table "Files" in SQLite DB
 class Files(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    path = db.Column(db.String(512),unique = True, nullable = False)
+    path = db.Column(db.String(512), unique = True, nullable = False)
     hashes = db.Column(db.String(512), nullable = False)
     file_size = db.Column(db.Integer, nullable = True)
     image_size = db.Column(db.String(128), nullable = True)
     capture_time = db.Column(db.String(256), nullable = True)
     
     def __repr__(self):
-        return "<Files %s>" % self.path
+        return "<Files %s, %s, %d, %s, %s>" % self.path, self.hashes, self.file_size, self.image_size, self.capture_time
 
 # Create all tables into DB
 db.create_all()
@@ -60,10 +60,10 @@ def exploreDir(path):
             exploreDir(subdir)
 
 def isImage(filepath):
-    full_supported_formats = ['gif', 'jp2', 'jpeg', 'pcx', 'png', 'tiff', 'x-ms-bmp', 'x-portable-pixmap', 'x-xbitmap']
+    fullSupportedFormats = ['gif', 'jp2', 'jpeg', 'pcx', 'png', 'tiff', 'x-ms-bmp', 'x-portable-pixmap', 'x-xbitmap']
     try:
         mime = magic.from_file(filepath, mime=True)
-        return mime.rsplit('/', 1)[1] in full_supported_formats
+        return mime.rsplit('/', 1)[1] in fullSupportedFormats
     except IndexError:
         return False
 
@@ -106,10 +106,10 @@ def hashImage(file):
 
         hashes = ''.join(sorted(hashes))
 
-        print("Hashed {0}".format(file))
+        #print("Hashed {0}".format(file))
         return file, hashes, file_size, image_size, capture_time
     except OSError:
-        print("Unable to open {0}".format(file))
+        #print("Unable to open {0}".format(file))
         return None
 
 
@@ -133,7 +133,8 @@ def get_capture_time(img):
     except:
         return "Time unknown"
 
-@app.route('/add/status')
+@app.route("/add/status")
 def status():
     return json.dumps(tempGlobalStatus)
+
 app.run(debug = True)
