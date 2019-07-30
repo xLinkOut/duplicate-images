@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os
+import json
+import magic
+import threading
+import imagehash
+from PIL import Image
+from time import sleep
 from flask import Flask, request, render_template
 from flask_sqlalchemy import SQLAlchemy
-import magic
 
 # Temp, here to simulate polling client-server
-tempGlobalList = []
+tempGlobalStatus = []
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///Database.db'
@@ -38,6 +44,7 @@ def add():
     path = request.form['path']
     imagesList = exploreDir(path)
     # Process image and add to db
+    threading.Thread(target=hashList,args=(imagesList,)).start()
     return render_template("add.html", path=path)
 
 def exploreDir(path):
@@ -69,13 +76,57 @@ def hashList(imagesList):
         print(path)
         data = hashImage(path)
         sleep(3)
-        #db.session.add(Files(path=path))
-        listGlobalStatus.remove(path)
+        db.session.add(Files(path=path))
+        tempGlobalStatus.remove(path)
     
     db.session.commit()
 
 def hashImage(file):
-    pass
+    try:
+        hashes = []
+        img = Image.open(file)
+        file_size = get_file_size(file)
+        image_size = get_image_size(img)
+        capture_time = get_capture_time(img)
+
+        # hash the image 4 times and rotate it by 90 degrees each time
+        for angle in [ 0, 90, 180, 270 ]:
+            if angle > 0:
+                turned_img = img.rotate(angle, expand=True)
+            else:
+                turned_img = img
+            hashes.append(str(imagehash.phash(turned_img)))
+
+        hashes = ''.join(sorted(hashes))
+
+        print("\tHashed {}".format(file), "blue")
+        return file, hashes, file_size, image_size, capture_time
+    except OSError:
+        print("\tUnable to open {}".format(file), "red")
+        return None
 
 
+def get_file_size(file_name):
+    try:
+        return os.path.getsize(file_name)
+    except FileNotFoundError:
+        return 0
+
+def get_image_size(img):
+    return "{} x {}".format(*img.size)
+
+def get_capture_time(img):
+    try:
+        exif = {
+            ExifTags.TAGS[k]: v
+            for k, v in img._getexif().items()
+            if k in ExifTags.TAGS
+        }
+        return exif["DateTimeOriginal"]
+    except:
+        return "Time unknown"
+
+@app.route('/add/status')
+def status():
+    return json.dumps(tempGlobalStatus)
 app.run(debug = True)
