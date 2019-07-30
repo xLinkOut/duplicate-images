@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block body %}
+    
+    <h1>{{ path }}</h1>
+    <ul id="list"></ul>
+
+    <script>
+        setInterval(function(){$.ajax("/add/status", {
+            success: function(status){
+                $("#list").append("<li>"+status+"</li>");
+            }
+        })}, 2000);
+    </script>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+{% block body %}
+
+    <h1>DupFinder</h1>
+    <form action="/add" method="post">
+        <input type="text" name="path" value="/home/luca/Pictures/">
+        <button type="submit">Add</button>
+    </form>
+    <!-- Drag and drop folder to take path -->
+
+    <!--    
+        <input id="folderPicker" type="file" multiple webkitdirectory>
+        <div id="filesList">
+        Pick a directory.
+    </div>
+    
+    <script>
+        let fileList = [];
+        let picker = document.getElementById('folderPicker');
+        picker.addEventListener('change', (event) => {
+            let files = event.target.files;
+            let list = document.getElementById('filesList');
+            list.innerHTML = 'You selected these files:';
+            
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
+                list.innerHTML += '<br>' + file.webkitRelativePath;
+                fileList.push(file.webkitRelativePath);
+            }
+        })
+        
+    </script>
+    -->
+    {% endblock %}
