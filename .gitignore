@@ -1,4 +1,7 @@
 # Directories
 venv/
 src/__pycache__/
+.vscode/
+
 # Files
+src/Database.db
