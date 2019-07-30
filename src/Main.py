@@ -31,14 +31,15 @@ class Files(db.Model):
     capture_time = db.Column(db.String(256), nullable = True)
     
     def __repr__(self):
-        return "<Files %s, %s, %d, %s, %s>" % self.path, self.hashes, self.file_size, self.image_size, self.capture_time
+        return "<Files {0},{1},{2},{3},{4}>".format(self.path, self.hashes, self.file_size, self.image_size, self.capture_time)
 
 # Create all tables into DB
 db.create_all()
 
 @app.route('/')
 def index():
-    return render_template("index.html")
+    item = db.session.query(Files).all()
+    return render_template("index.html",dblist=item)
 
 @app.route('/add', methods=['POST'])
 def add():

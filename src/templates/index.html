@@ -6,6 +6,12 @@
         <input type="text" name="path" value="/home/luca/Pictures/">
         <button type="submit">Add</button>
     </form>
+
+    <ul id="list">
+        {% for item in dblist %}
+            <li>{{ item }}<a href="#">remove</a></li>
+        {% endfor %}
+    </ul>
     <!-- Drag and drop folder to take path -->
 
     <!--    
