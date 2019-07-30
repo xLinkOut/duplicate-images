@@ -10,6 +10,7 @@ from PIL import Image
 from time import sleep
 from flask import Flask, request, render_template
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError
 
 # Temp, here to simulate polling client-server
 tempGlobalStatus = []
@@ -33,7 +34,7 @@ class Files(db.Model):
         return "<Files %s>" % self.path
 
 # Create all tables into DB
-#db.create_all()
+db.create_all()
 
 @app.route('/')
 def index():
@@ -75,11 +76,17 @@ def hashList(imagesList):
     for path in tempList:
         print(path)
         data = hashImage(path)
-        sleep(3)
-        db.session.add(Files(path=path))
+        db.session.add(Files(path = data[0],
+                            hashes = data[1],
+                            file_size = data[2],
+                            image_size = data[3],
+                            capture_time = data[4]))
         tempGlobalStatus.remove(path)
-    
-    db.session.commit()
+        try:
+            db.session.commit()
+        except IntegrityError as e:
+            print(e)
+
 
 def hashImage(file):
     try:
@@ -99,10 +106,10 @@ def hashImage(file):
 
         hashes = ''.join(sorted(hashes))
 
-        print("\tHashed {}".format(file), "blue")
+        print("Hashed {0}".format(file))
         return file, hashes, file_size, image_size, capture_time
     except OSError:
-        print("\tUnable to open {}".format(file), "red")
+        print("Unable to open {0}".format(file))
         return None
 
 
