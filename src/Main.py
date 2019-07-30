@@ -25,10 +25,13 @@ class Files(db.Model):
 # Create all tables into DB
 #db.create_all()
 
-
 @app.route('/')
 def index():
     return render_template("index.html")
 
+@app.route('/add', methods=['POST'])
+def add():
+    path = request.form['path']
+    return render_template("add.html", path=path)
 
 app.run(debug = True)
