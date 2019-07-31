@@ -9,9 +9,25 @@
 
     <ul id="list">
         {% for item in dblist %}
-            <li>{{ item }}<a href="#">remove</a></li>
+            <li id="item-{{ loop.index }}">
+                <img width="160px" height="160px" src="{{ url_for('static',filename='symlinks/' + item.file_name) }}">
+                {{ item.path }}<a href="#" onclick="remove()">remove</a>
+            </li>
         {% endfor %}
     </ul>
+
+    <script>
+        function remove(){
+
+            console.log("We",id)
+            $.ajax("/remove/"+id,{
+                success: function(status){
+                    document.getElementById("list").removeChild(document.getElementsByTagName("li")[id-1]);   
+                }
+            })
+        };
+    </script>
+
     <!-- Drag and drop folder to take path -->
 
     <!--    

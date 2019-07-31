@@ -24,8 +24,9 @@ db = SQLAlchemy(app)
 # Table "Files" in SQLite DB
 class Files(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    path = db.Column(db.String(512), unique = True, nullable = False)
+    path = db.Column(db.String(512), nullable = False) # unique = True
     hashes = db.Column(db.String(512), nullable = False)
+    file_name = db.Column(db.String(512), nullable = False)
     file_size = db.Column(db.Integer, nullable = True)
     image_size = db.Column(db.String(128), nullable = True)
     capture_time = db.Column(db.String(256), nullable = True)
@@ -46,7 +47,7 @@ def add():
     path = request.form['path']
     imagesList = exploreDir(path)
     # Process image and add to db
-    threading.Thread(target=hashList,args=(imagesList,)).start()
+    threading.Thread(target=hashList, args=(imagesList,)).start()
     return render_template("add.html", path=path)
 
 def exploreDir(path):
@@ -79,20 +80,27 @@ def hashList(imagesList):
         data = hashImage(path)
         db.session.add(Files(path = data[0],
                             hashes = data[1],
-                            file_size = data[2],
-                            image_size = data[3],
-                            capture_time = data[4]))
+                            file_name = data[2],
+                            file_size = data[3],
+                            image_size = data[4],
+                            capture_time = data[5]))
         tempGlobalStatus.remove(path)
         try:
             db.session.commit()
+            # Create symbolic link in static/symlinks
+            # os.symlink(src, dest)
         except IntegrityError as e:
             print(e)
-
+        try:
+            os.symlink(path, "static/symlinks/{0}".format(os.path.basename(path)))
+        except FileExistsError as e:
+            print(e)
 
 def hashImage(file):
     try:
         hashes = []
         img = Image.open(file)
+        file_name = os.path.basename(file)
         file_size = get_file_size(file)
         image_size = get_image_size(img)
         capture_time = get_capture_time(img)
@@ -108,7 +116,7 @@ def hashImage(file):
         hashes = ''.join(sorted(hashes))
 
         #print("Hashed {0}".format(file))
-        return file, hashes, file_size, image_size, capture_time
+        return file, hashes, file_name, file_size, image_size, capture_time
     except OSError:
         #print("Unable to open {0}".format(file))
         return None
@@ -138,4 +146,8 @@ def get_capture_time(img):
 def status():
     return json.dumps(tempGlobalStatus)
 
+@app.route("/remove/<int:id>")
+def remove(id):
+    print(id)
+    return "ok"
 app.run(debug = True)
