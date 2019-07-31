@@ -6,15 +6,33 @@
         <input type="text" name="path" value="/home/luca/Pictures/">
         <button type="submit">Add</button>
     </form>
-
-    <ul id="list">
+    <div class="ui divider"></div>
+    <div class="ui three column grid">
         {% for item in dblist %}
-            <li id="item-{{ loop.index }}">
-                <img width="160px" height="160px" src="{{ url_for('static',filename='symlinks/' + item.file_name) }}">
-                {{ item.path }}<a href="#" onclick="remove()">remove</a>
-            </li>
+        <div class="column">
+            <div class="ui segment">
+                <div class="ui card" id="item-{{ loop.index }}">
+                    <div class="image">
+                        <img src="{{ url_for('static',filename='symlinks/' + item.file_name) }}"">
+                    </div>
+                    <div class="content">
+                        <a class="header">{{ item.file_name }}</a>
+                        <div class="meta">
+                            <span class="date">Joined in 2013</span>
+                        </div>
+                        <div class="description">
+                            Kristy is an art director living in New York.
+                        </div>
+                    </div>
+                    <div class="ui bottom attached button">
+                        <i class="add icon"></i>
+                        Remove
+                    </div>
+                </div>
+            </div>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
 
     <script>
         function remove(){
