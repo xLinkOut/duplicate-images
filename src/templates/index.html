@@ -7,36 +7,38 @@
         <button type="submit">Add</button>
     </form>
     <div class="ui divider"></div>
-    <div class="ui three column grid">
+    
+    <div class="ui four cards">
+
         {% for item in dblist %}
-        <div class="column">
-            <div class="ui segment">
-                <div class="ui card" id="item-{{ loop.index }}">
-                    <div class="image">
-                        <img src="{{ url_for('static',filename='symlinks/' + item.file_name) }}"">
-                    </div>
-                    <div class="content">
-                        <a class="header">{{ item.file_name }}</a>
-                        <div class="meta">
-                            <span class="date">Joined in 2013</span>
-                        </div>
-                        <div class="description">
-                            Kristy is an art director living in New York.
-                        </div>
-                    </div>
-                    <div class="ui bottom attached button">
-                        <i class="add icon"></i>
-                        Remove
-                    </div>
+        <div class="card">
+            <div class="image">
+                <img src="{{ url_for('static',filename='symlinks/' + item.file_name) }}"">
+            </div>
+            <div class="content">
+                <div class="header"> <!-- is an <a> not a <div> -->
+                    {{ item.file_name }}
+                </div>
+                <div class="meta">
+                    <span class="date">{{ item.capture_time }}</span>
+                </div>
+                <div class="description">
+                    {{ item.path }}
+                </div>
+            </div>
+            <div class="extra content">
+                <div class="ui two buttons">
+                    <div class="ui basic blue button"># Duplicates</div>
+                    <div class="ui basic red button">Exclude</div>
                 </div>
             </div>
         </div>
-        {% endfor %}
+        {% endfor %}        
+    
     </div>
 
     <script>
         function remove(){
-
             console.log("We",id)
             $.ajax("/remove/"+id,{
                 success: function(status){
