@@ -16,6 +16,7 @@ from sqlalchemy.exc import IntegrityError
 tempGlobalStatus = []
 
 app = Flask(__name__)
+# Set database file to "Database.db" in current directory
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///Database.db'
 # Remove annoying warning messange until next releas of SQLAlchemy
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -37,11 +38,13 @@ class Files(db.Model):
 # Create all tables into DB
 db.create_all()
 
+# Index endpoint, display all images collected in database
 @app.route('/')
 def index():
     item = db.session.query(Files).all()
     return render_template("index.html",dblist=item)
 
+# Add a path to database
 @app.route('/add', methods=['POST'])
 def add():
     path = request.form['path']
@@ -50,6 +53,7 @@ def add():
     threading.Thread(target=hashList, args=(imagesList,)).start()
     return render_template("add.html", path=path)
 
+# Explorer path to get a list of all its files and subdirectories
 def exploreDir(path):
     for root, directories, filenames in os.walk(path, topdown=True):
         # Process file into root
@@ -61,6 +65,7 @@ def exploreDir(path):
         for subdir in directories:
             exploreDir(subdir)
 
+# Return true if filepath is a supported image format
 def isImage(filepath):
     fullSupportedFormats = ['gif', 'jp2', 'jpeg', 'pcx', 'png', 'tiff', 'x-ms-bmp', 'x-portable-pixmap', 'x-xbitmap']
     try:
@@ -69,6 +74,7 @@ def isImage(filepath):
     except IndexError:
         return False
 
+# Hash a list of images
 def hashList(imagesList):
     tempList = list()
     for path in imagesList:
@@ -96,6 +102,7 @@ def hashList(imagesList):
         except FileExistsError as e:
             print(e)
 
+# Calculate hash of an image and return other usefull data
 def hashImage(file):
     try:
         hashes = []
@@ -121,16 +128,18 @@ def hashImage(file):
         #print("Unable to open {0}".format(file))
         return None
 
-
-def get_file_size(file_name):
+# Get image size in byte format
+def get_file_size(path):
     try:
-        return os.path.getsize(file_name)
+        return os.path.getsize(path)
     except FileNotFoundError:
         return 0
 
+# Get image size in pixel (width x height)
 def get_image_size(img):
     return "{} x {}".format(*img.size)
 
+# Extract capture time from an image
 def get_capture_time(img):
     try:
         exif = {
@@ -142,12 +151,16 @@ def get_capture_time(img):
     except:
         return "Time unknown"
 
+# Get status of current working threads
 @app.route("/add/status")
 def status():
     return json.dumps(tempGlobalStatus)
 
+# Remove an image from database, not local disk
 @app.route("/remove/<int:id>")
 def remove(id):
     print(id)
     return "ok"
+
+# Start Flask web server
 app.run(debug = True)
