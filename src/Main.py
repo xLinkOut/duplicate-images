@@ -25,15 +25,15 @@ db = SQLAlchemy(app)
 # Table "Files" in SQLite DB
 class Files(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    path = db.Column(db.String(512), nullable = False) # unique = True
-    hashes = db.Column(db.String(512), nullable = False)
-    file_name = db.Column(db.String(512), nullable = False)
-    file_size = db.Column(db.Integer, nullable = True)
-    image_size = db.Column(db.String(128), nullable = True)
-    capture_time = db.Column(db.String(256), nullable = True)
+    path = db.Column(db.String(512))
+    name = db.Column(db.String(512))
+    hashes = db.Column(db.String(512))
+    file_size = db.Column(db.Integer)
+    image_size = db.Column(db.String(128))
+    capture_time = db.Column(db.String(256))
     
     def __repr__(self):
-        return "<Files {0},{1},{2},{3},{4}>".format(self.path, self.hashes, self.file_size, self.image_size, self.capture_time)
+        return "<Files {0},{1},{2},{3},{4}.{5}>".format(self.path,self.name,self.hashes,self.file_size,self.image_size,self.capture_time)
 
 # Create all tables into DB
 db.create_all()
@@ -41,7 +41,7 @@ db.create_all()
 # Index endpoint, display all images collected in database
 @app.route('/')
 def index():
-    item = db.session.query(Files).all()
+    item = db.session.query(Files).order_by(Files.path).all()
     return render_template("index.html",dblist=item)
 
 # Add a path to database
@@ -84,46 +84,46 @@ def hashList(imagesList):
     for path in tempList:
         print(path)
         data = hashImage(path)
-        db.session.add(Files(path = data[0],
-                            hashes = data[1],
-                            file_name = data[2],
-                            file_size = data[3],
-                            image_size = data[4],
-                            capture_time = data[5]))
+        db.session.add(Files(path = data['path'],
+                            name = data['name'],
+                            hashes = data['hashes'],
+                            file_size = data['file_size'],
+                            image_size = data['image_size'],
+                            capture_time = data['capture_time']))
         tempGlobalStatus.remove(path)
+        
         try:
             db.session.commit()
-            # Create symbolic link in static/symlinks
-            # os.symlink(src, dest)
         except IntegrityError as e:
             print(e)
+        
         try:
-            os.symlink(path, "static/symlinks/{0}".format(os.path.basename(path)))
+            # Create symbolic link in static/symlinks
+            # os.symlink(src, dest)
+            os.symlink(path, "static/symlinks/{0}".format(data['name']))
         except FileExistsError as e:
             print(e)
 
 # Calculate hash of an image and return other usefull data
-def hashImage(file):
+def hashImage(filepath):
     try:
+        img = Image.open(filepath)
         hashes = []
-        img = Image.open(file)
-        file_name = os.path.basename(file)
-        file_size = get_file_size(file)
-        image_size = get_image_size(img)
-        capture_time = get_capture_time(img)
-
-        # hash the image 4 times and rotate it by 90 degrees each time
-        for angle in [ 0, 90, 180, 270 ]:
-            if angle > 0:
-                turned_img = img.rotate(angle, expand=True)
-            else:
-                turned_img = img
-            hashes.append(str(imagehash.phash(turned_img)))
-
-        hashes = ''.join(sorted(hashes))
+        # First hash image in its original orientation
+        hashes.append(str(imagehash.phash(img)))
+        # Then rotate image by 90, 180 and 270 degree and append its hashes
+        for angle in [ 90, 180, 270 ]:
+            hashes.append(str(imagehash.phash(img.rotate(angle, expand=True))))
 
         #print("Hashed {0}".format(file))
-        return file, hashes, file_name, file_size, image_size, capture_time
+        return {
+            'path': os.path.dirname(filepath),
+            'name': os.path.basename(filepath),
+            'hashes': ''.join(sorted(hashes)),
+            'file_size': get_file_size(filepath),
+            'image_size': get_image_size(img),
+            'capture_time': get_capture_time(img)
+        }
     except OSError:
         #print("Unable to open {0}".format(file))
         return None

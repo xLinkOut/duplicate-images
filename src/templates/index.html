@@ -13,7 +13,7 @@
         {% for item in dblist %}
         <div class="card">
             <div class="image">
-                <img src="{{ url_for('static',filename='symlinks/' + item.file_name) }}"">
+                <img src="{{ url_for('static',filename='symlinks/' + item.name) }}"">
             </div>
             <div class="content">
                 <div class="header"> <!-- is an <a> not a <div> -->
