@@ -16,3 +16,7 @@ This code is a full refactor of [this software](https://github.com/philipbl/dupl
 - [ ] Write a Wiki and a Quick Start guide
 - [ ] Have fun!
 
+## Note for personal reference
+* When (at least) a duplicate is found, display only one with a "ribbon" element from Semantic UI with a counter of how many duplicates software found. 
+* A click on "# Duplicates" display a modal where user can delete from local disk one or more duplicate images.
+* In database save path and filename separately.
