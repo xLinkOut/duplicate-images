@@ -41,6 +41,7 @@ db.create_all()
 
 # Index endpoint, display all images collected in database
 @app.route('/')
+@app.route('/dashboard/')
 def index():
     items = db.session.query(Files).order_by(Files.path).all()
     paths = db.session.query(Files.path).distinct()
@@ -168,7 +169,7 @@ def remove(id):
         return "0"
 
 # Compare hashes to find duplicate images
-@app.route("/find")
+@app.route("/duplicates/")
 def find():
     duplicates = db.session.query(Files) \
                 .filter(Files.hashes.in_(db.session.query(Files.hashes) \

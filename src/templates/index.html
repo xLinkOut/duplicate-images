@@ -20,8 +20,6 @@
     {% endfor %}
 </div>
 
-
-
 <div class="ui big middle aligned divided list">
     {% for path in paths %}
     <div class="item">
@@ -68,6 +66,22 @@
     </div>
     {% endfor %}
 </div>
+<script>
+    $('.ui.accordion').accordion();
+
+    function remove(id) {
+        console.log("Exclude picture with id: " + id);
+        $.ajax("/remove/" + id, {
+            success: function (status) {
+                console.log("Success! " + status);
+                // Prevent to dismiss dimmir by clicking on dimmed area
+                $("#" + id).dimmer({ closable: false });
+                $("#" + id).dimmer('show');
+                //document.getElementById("list").removeChild(document.getElementsByTagName("li")[id - 1]);
+            }
+        })
+    };
+</script>
 
 <!--    
     <div>
@@ -93,23 +107,4 @@
         
     </script>
     -->
-{% endblock %}
-
-{% block semantic_js %}
-<script>
-    $('.ui.accordion').accordion();
-
-    function remove(id) {
-        console.log("Exclude picture with id: " + id);
-        $.ajax("/remove/" + id, {
-            success: function (status) {
-                console.log("Success! " + status);
-                // Prevent to dismiss dimmir by clicking on dimmed area
-                $("#" + id).dimmer({ closable: false });
-                $("#" + id).dimmer('show');
-                //document.getElementById("list").removeChild(document.getElementsByTagName("li")[id - 1]);
-            }
-        })
-    };
-</script>
 {% endblock %}

@@ -1,23 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="{{ url_for('static', filename='semantic.min.css') }}">
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery-3.4.1.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='semantic.min.js') }}"></script>
     <title>DupFinder</title>
 </head>
+
 <body>
 
     <div class="ui container">
+        <!-- Sidebar -->
+        <div class="ui left secondary vertical visible sidebar labeled icon menu" id="sidebar">
+            <a href="/" class="header item">
+                <i class="python icon"></i>
+            </a>        
+            <a href="/dashboard/" class="header item {% if request.path == '/' %}active{% endif %}">
+                <i class="home icon"></i>
+            </a>
+            <a href="/folders/" class="item {% if request.path == '/folders/' %}active{% endif %}">
+                <i class="folder icon"></i>
+            </a>
+            <a href="/duplicates/" class="item {% if request.path == '/duplicates/' %}active{% endif %}">
+                <i class="images outline icon"></i>
+            </a>
+        </div>
+
         {% block body%}
         {% endblock %}
     </div>
 
-    <script type="text/javascript" src="{{ url_for('static', filename='jquery-3.4.1.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='semantic.min.js') }}"></script>
-    
-    {% block semantic_js %}
-    {% endblock %}
 </body>
+
 </html>
