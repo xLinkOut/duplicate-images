@@ -1,14 +1,33 @@
 {% extends "layout.html" %}
 {% block body %}
 
-<h1>DupFinder</h1>
+<h4 class="ui horizontal divider header">
+    <i class="plus icon"></i>
+    Add new path
+</h4>
+
+
+<div class="ui right action left icon fluid input">
+    <i class="folder icon"></i>
+    <input type="text" placeholder="/home/User/Pictures">
+    <div class="ui floating positive button">
+        <div class="text">Add</div>
+    </div>
+</div>
+
+<!--
 <form action="/add" method="post">
     <input type="text" name="path" value="/home/luca/Pictures/">
     <button type="submit">Add</button>
 </form>
-<div class="ui divider"></div>
+-->
 
-<div class="ui styled fluid accordion">
+<h4 class="ui horizontal divider header">
+    <i class="database icon"></i>
+    Saved path
+</h4>
+
+<div class="ui fluid styled accordion">
     {% for item in items %}
     <div class="title">
         <i class="dropdown icon"></i>
