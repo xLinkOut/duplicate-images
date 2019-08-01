@@ -43,9 +43,7 @@ db.create_all()
 @app.route('/')
 @app.route('/dashboard/')
 def index():
-    items = db.session.query(Files).order_by(Files.path).all()
-    paths = db.session.query(Files.path).distinct()
-    return render_template("index.html",items=items,paths=paths)
+   return render_template("dashboard.html")
 
 # Add a path to database
 @app.route('/add', methods=['POST'])
@@ -190,6 +188,12 @@ def find():
         })
     
     return render_template("find.html", duplicates=response)
+
+@app.route('/folders/')
+def folders():
+    items = db.session.query(Files).order_by(Files.path).all()
+    paths = db.session.query(Files.path).distinct()
+    return render_template("folders.html",items=items,paths=paths)
 
 # Start Flask web server
 app.run(debug = True)

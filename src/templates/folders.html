@@ -1,0 +1,110 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h1>DupFinder</h1>
+<form action="/add" method="post">
+    <input type="text" name="path" value="/home/luca/Pictures/">
+    <button type="submit">Add</button>
+</form>
+<div class="ui divider"></div>
+
+<div class="ui styled fluid accordion">
+    {% for item in items %}
+    <div class="title">
+        <i class="dropdown icon"></i>
+        {{ item.path }}
+    </div>
+    <div class="content">
+        <p>{{ item.name }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="ui big middle aligned divided list">
+    {% for path in paths %}
+    <div class="item">
+        <i class="large folder middle aligned icon"></i>
+        <div class="content">
+            <a class="header">{{ path[0] }}</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<a class="ui primary button" href="/find">Find Duplicates</a>
+
+<div class="ui divider"></div>
+
+<div class="ui four cards">
+    {% for item in items %}
+    <div id="{{ item.id }}" class="card blurring">
+        <div class="image">
+            <img src="{{ url_for('static',filename='symlinks/' + item.name) }}"">
+            </div>
+            <div class=" content">
+            <div class="header">
+                <!-- is an <a> not a <div> -->
+                {{ item.file_name }}
+            </div>
+            <div class="meta">
+                <span class="date">{{ item.capture_time }}</span>
+            </div>
+            <div class="description">
+                {{ item.path }}
+            </div>
+        </div>
+        <div class="extra content">
+            <div class="ui two buttons">
+                <div class="ui basic blue button"># Duplicates</div>
+                <div class="ui basic red button" onclick="remove({{ item.id }})">Exclude</div>
+            </div>
+        </div>
+        <div class="ui bottom aligned dimmer">
+            <div class="content">
+                <div class="ui button">Undo</div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    $('.ui.accordion').accordion();
+
+    function remove(id) {
+        console.log("Exclude picture with id: " + id);
+        $.ajax("/remove/" + id, {
+            success: function (status) {
+                console.log("Success! " + status);
+                // Prevent to dismiss dimmir by clicking on dimmed area
+                $("#" + id).dimmer({ closable: false });
+                $("#" + id).dimmer('show');
+                //document.getElementById("list").removeChild(document.getElementsByTagName("li")[id - 1]);
+            }
+        })
+    };
+</script>
+
+<!--    
+    <div>
+        <input id="folderPicker" type="file" multiple webkitdirectory>
+        <div id="filesList">
+        Pick a directory.
+    </div>
+    
+    <script>
+        let fileList = [];
+        let picker = document.getElementById('folderPicker');
+        picker.addEventListener('change', (event) => {
+            let files = event.target.files;
+            let list = document.getElementById('filesList');
+            list.innerHTML = 'You selected these files:';
+            
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
+                list.innerHTML += '<br>' + file.webkitRelativePath;
+                fileList.push(file.webkitRelativePath);
+            }
+        })
+        
+    </script>
+    -->
+{% endblock %}
