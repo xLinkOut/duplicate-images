@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<div class="ui relaxed divided list">
+
+    {% for dup in duplicates %}
+    <div class="item">
+        <i class="large image middle aligned icon"></i>
+        <div class="content">
+            <a class="header">{{ dup.name }}</a>
+            <div class="description">{{ dup.path }}</div>
+        </div>
+    </div>
+    {% endfor %}
+
+</div>
+{% endblock %}

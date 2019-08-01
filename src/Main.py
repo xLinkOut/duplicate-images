@@ -10,6 +10,7 @@ from PIL import Image
 from time import sleep
 from flask import Flask, request, render_template
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
 # Temp, here to simulate polling client-server
@@ -33,7 +34,7 @@ class Files(db.Model):
     capture_time = db.Column(db.String(256))
     
     def __repr__(self):
-        return "<Files {0},{1},{2},{3},{4}.{5}>".format(self.path,self.name,self.hashes,self.file_size,self.image_size,self.capture_time)
+        return "<Files {0},{1},{2},{3},{4},{5},{6}>".format(self.id,self.path,self.name,self.hashes,self.file_size,self.image_size,self.capture_time)
 
 # Create all tables into DB
 db.create_all()
@@ -41,8 +42,9 @@ db.create_all()
 # Index endpoint, display all images collected in database
 @app.route('/')
 def index():
-    item = db.session.query(Files).order_by(Files.path).all()
-    return render_template("index.html",dblist=item)
+    items = db.session.query(Files).order_by(Files.path).all()
+    paths = db.session.query(Files.path).distinct()
+    return render_template("index.html",items=items,paths=paths)
 
 # Add a path to database
 @app.route('/add', methods=['POST'])
@@ -159,8 +161,34 @@ def status():
 # Remove an image from database, not local disk
 @app.route("/remove/<int:id>")
 def remove(id):
-    print(id)
-    return "ok"
+    if db.session.query(Files).filter(Files.id == id).delete():
+        db.session.commit()
+        return "1"
+    else:
+        return "0"
+
+# Compare hashes to find duplicate images
+@app.route("/find")
+def find():
+    duplicates = db.session.query(Files) \
+                .filter(Files.hashes.in_(db.session.query(Files.hashes) \
+                                        .group_by(Files.hashes) \
+                                        .having(func.count() > 1))) \
+                .order_by(Files.hashes) \
+                .all()
+    response = []
+    for dup in duplicates:
+        response.append({
+            'id': dup.id,
+            'path': dup.path,
+            'name': dup.name,
+            'hashes': dup.hashes,
+            'file_size': dup.file_size,
+            'image_size': dup.image_size,
+            'capture_time': dup.capture_time
+        })
+    
+    return render_template("find.html", duplicates=response)
 
 # Start Flask web server
 app.run(debug = True)
