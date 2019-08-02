@@ -34,7 +34,8 @@ class Files(db.Model):
     capture_time = db.Column(db.String(256))
     
     def __repr__(self):
-        return "<Files {0},{1},{2},{3},{4},{5},{6}>".format(self.id,self.path,self.name,self.hashes,self.file_size,self.image_size,self.capture_time)
+        return "<Files {0},{1},{2},{3},{4},{5},{6}>" \
+            .format(self.id,self.path,self.name,self.hashes,self.file_size,self.image_size,self.capture_time)
 
 # Create all tables into DB
 db.create_all()
@@ -49,11 +50,17 @@ def index():
 @app.route('/add', methods=['POST'])
 def add():
     path = request.form['path']
-    imagesList = exploreDir(path)
+    imagesList = []
+    for image in exploreDir(path):
+        imagesList.append(image)
+    print(imagesList)
     # Check if folder exists
     # Process image and add to db
     threading.Thread(target=hashList, args=(imagesList,)).start()
-    return "1" # Return negative status if something fail
+    return {
+        'status': 0,
+        'counter': len(imagesList)
+    } # Return negative status if something fail
 
 # Explorer path to get a list of all its files and subdirectories
 def exploreDir(path):
@@ -78,13 +85,11 @@ def isImage(filepath):
 
 # Hash a list of images
 def hashList(imagesList):
-    tempList = list()
     for path in imagesList:
-        tempList.append(path)
         tempGlobalStatus.append(path)
     
-    for path in tempList:
-        print(path)
+    for path in imagesList:
+        #sleep(3) # Here to simulate long time hashing
         data = hashImage(path)
         db.session.add(Files(path = data['path'],
                             name = data['name'],
@@ -156,7 +161,8 @@ def get_capture_time(img):
 # Get status of current working threads
 @app.route("/add/status")
 def status():
-    return json.dumps(tempGlobalStatus)
+    return str(len(tempGlobalStatus))
+    #return json.dumps(tempGlobalStatus)
 
 # Remove an image from database, not local disk
 @app.route("/remove/<int:id>")

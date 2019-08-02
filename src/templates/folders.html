@@ -17,7 +17,7 @@
 
 <!-- PROGRESS DURING ADDING -->
 
-<div class="ui indicating blue progress">
+<div id="progress" class="ui indicating blue progress">
     <div class="bar"></div>
 </div>
 <!--
@@ -104,18 +104,36 @@
 
 <script>
     $('.ui.accordion').accordion();
+    var refreshIntervalId = null;
+    var last = 0;
 
     function add() {
         $.ajax({
             type: "POST",
             url: "/add",
             data: { path: $("#newPath").val() },
-            success: function (status) {
+            success: function (response) {
                 // If positive status
-                if (status >= 0) {
+                if (response['status'] >= 0) {
+                    console.log(response['counter']);
+                    $('#progress').progress({ total: response['counter'] });
                     // Display a progress bar and a list with processed images
-
+                    last = response['counter'];
+                    refreshIntervalId = setInterval(function () { updateStatus(response['counter']) }, 500);
                 }
+            }
+        });
+    };
+
+    function updateStatus(total) {
+        $.ajax("/add/status", {
+            success: function (update) {
+                // Stop updating
+                if (update < last)
+                    for (i = 0; i < (last - update); i++)
+                        $("#progress").progress('increment');
+                last = update;
+                if (update == 0){clearInterval(refreshIntervalId); location.reload();}
             }
         });
     };
