@@ -2,6 +2,8 @@
 venv/
 .vscode/
 src/__pycache__/
+src/static/components
+src/static/themes
 
 # Files
 src/Database.db
