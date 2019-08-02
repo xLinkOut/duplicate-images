@@ -11,16 +11,26 @@
     <i class="folder icon"></i>
     <input type="text" placeholder="/home/User/Pictures">
     <div class="ui floating positive button">
-        <div class="text">Add</div>
+        <div class="text" onclick="add()">Add</div>
     </div>
 </div>
 
+<!-- PROGRESS DURING ADDING -->
+
+
+
 <!--
+<div class="ui checked checkbox">
+    <input type="checkbox" checked="">
+    <label>Subdirectories</label>
+</div>
 <form action="/add" method="post">
     <input type="text" name="path" value="/home/luca/Pictures/">
     <button type="submit">Add</button>
 </form>
 -->
+
+
 
 <h4 class="ui horizontal divider header">
     <i class="database icon"></i>
@@ -28,53 +38,55 @@
 </h4>
 
 <div class="ui fluid styled accordion">
-    {% for item in items %}
+    {% for path,images in data.items() %}
     <div class="title">
         <i class="dropdown icon"></i>
-        {{ item.path }}
+        {{ path }}
     </div>
     <div class="content">
-        <p>{{ item.name }}</p>
-    </div>
-    {% endfor %}
-</div>
-
-<div class="ui big middle aligned divided list">
-    {% for path in paths %}
-    <div class="item">
-        <i class="large folder middle aligned icon"></i>
-        <div class="content">
-            <a class="header">{{ path[0] }}</a>
+        <div class="ui middle aligned divided selection list">
+            {% for image in images %}
+            <div class="item">
+                <div class="right floated content">
+                    <div class="ui primary button">Check</div>
+                    <div class="ui negative button">Exclude</div>
+                </div>
+                <img class="ui avatar image" src="{{ url_for('static',filename='symlinks/' + image.name)}}">
+                <div class="content">
+                    {{ image.name }}
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
     {% endfor %}
 </div>
-<a class="ui primary button" href="/find">Find Duplicates</a>
 
+<!-- GRID VIEW
 <div class="ui divider"></div>
-
 <div class="ui four cards">
-    {% for item in items %}
-    <div id="{{ item.id }}" class="card blurring">
+    {% for path,images in data.items() %}
+    {% for image in images %}
+    <div id="{{ image.id }}" class="card blurring">
         <div class="image">
-            <img src="{{ url_for('static',filename='symlinks/' + item.name) }}"">
-            </div>
-            <div class=" content">
+            <img src="{{ url_for('static',filename='symlinks/' + image.name) }}"">
+        </div>
+        <div class=" content">
             <div class="header">
-                <!-- is an <a> not a <div> -->
-                {{ item.file_name }}
+
+                {{ image.name }}
             </div>
             <div class="meta">
-                <span class="date">{{ item.capture_time }}</span>
+                <span class="date">{{ image.capture_time }}</span>
             </div>
             <div class="description">
-                {{ item.path }}
+                {{ image.path }}
             </div>
         </div>
         <div class="extra content">
             <div class="ui two buttons">
                 <div class="ui basic blue button"># Duplicates</div>
-                <div class="ui basic red button" onclick="remove({{ item.id }})">Exclude</div>
+                <div class="ui basic red button" onclick="remove({{ image.id }})">Exclude</div>
             </div>
         </div>
         <div class="ui bottom aligned dimmer">
@@ -84,9 +96,16 @@
         </div>
     </div>
     {% endfor %}
+    {% endfor %}
 </div>
+-->
+
 <script>
     $('.ui.accordion').accordion();
+
+    function add() {
+
+    };
 
     function remove(id) {
         console.log("Exclude picture with id: " + id);
@@ -103,27 +122,27 @@
 </script>
 
 <!--    
-    <div>
-        <input id="folderPicker" type="file" multiple webkitdirectory>
-        <div id="filesList">
-        Pick a directory.
-    </div>
-    
-    <script>
-        let fileList = [];
-        let picker = document.getElementById('folderPicker');
-        picker.addEventListener('change', (event) => {
-            let files = event.target.files;
-            let list = document.getElementById('filesList');
-            list.innerHTML = 'You selected these files:';
-            
-            for (let i = 0; i < files.length; i++) {
-                let file = files[i];
-                list.innerHTML += '<br>' + file.webkitRelativePath;
-                fileList.push(file.webkitRelativePath);
-            }
-        })
+        <div>
+            <input id="folderPicker" type="file" multiple webkitdirectory>
+            <div id="filesList">
+            Pick a directory.
+        </div>
         
-    </script>
-    -->
+        <script>
+            let fileList = [];
+            let picker = document.getElementById('folderPicker');
+            picker.addEventListener('change', (event) => {
+                let files = event.target.files;
+                let list = document.getElementById('filesList');
+                list.innerHTML = 'You selected these files:';
+                
+                for (let i = 0; i < files.length; i++) {
+                    let file = files[i];
+                    list.innerHTML += '<br>' + file.webkitRelativePath;
+                    fileList.push(file.webkitRelativePath);
+                }
+            })
+            
+        </script>
+        -->
 {% endblock %}

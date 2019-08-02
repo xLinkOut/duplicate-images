@@ -191,9 +191,23 @@ def find():
 
 @app.route('/folders/')
 def folders():
-    items = db.session.query(Files).order_by(Files.path).all()
-    paths = db.session.query(Files.path).distinct()
-    return render_template("folders.html",items=items,paths=paths)
+    response = {}
+    paths = db.session.query(Files.path).distinct().all()
+    for path, in paths: #, because sqlalchemy return a namedtuple even with a single column
+        imagesInPath = db.session.query(Files).filter(Files.path == path).all()
+        response[path] = []
+        for image in imagesInPath:
+            response[path].append({
+                'id': image.id,
+                'path': image.path,
+                'name': image.name,
+                'hashes': image.hashes,
+                'file_size': image.file_size,
+                'image_size': image.image_size,
+                'capture_time': image.capture_time
+            })
+
+    return render_template("folders.html",data=response)
 
 # Start Flask web server
 app.run(debug = True)
