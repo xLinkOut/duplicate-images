@@ -50,9 +50,10 @@ def index():
 def add():
     path = request.form['path']
     imagesList = exploreDir(path)
+    # Check if folder exists
     # Process image and add to db
     threading.Thread(target=hashList, args=(imagesList,)).start()
-    return render_template("add.html", path=path)
+    return "1" # Return negative status if something fail
 
 # Explorer path to get a list of all its files and subdirectories
 def exploreDir(path):

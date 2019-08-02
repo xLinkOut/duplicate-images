@@ -9,18 +9,20 @@
 
 <div class="ui right action left icon fluid input">
     <i class="folder icon"></i>
-    <input type="text" placeholder="/home/User/Pictures">
-    <div class="ui floating positive button">
-        <div class="text" onclick="add()">Add</div>
+    <input id="newPath" type="text" placeholder="/home/User/Pictures">
+    <div class="ui floating positive button" onclick="add()">
+        <div class="text">Add</div>
     </div>
 </div>
 
 <!-- PROGRESS DURING ADDING -->
 
-
-
+<div class="ui indicating blue progress">
+    <div class="bar"></div>
+</div>
 <!--
-<div class="ui checked checkbox">
+
+    <div class="ui checked checkbox">
     <input type="checkbox" checked="">
     <label>Subdirectories</label>
 </div>
@@ -44,15 +46,15 @@
         {{ path }}
     </div>
     <div class="content">
-        <div class="ui middle aligned divided selection list">
+        <div class="ui  divided selection list">
             {% for image in images %}
             <div class="item">
                 <div class="right floated content">
                     <div class="ui primary button">Check</div>
                     <div class="ui negative button">Exclude</div>
                 </div>
-                <img class="ui avatar image" src="{{ url_for('static',filename='symlinks/' + image.name)}}">
-                <div class="content">
+                <div class="middle content content">
+                    <img class="ui avatar image" src="{{ url_for('static',filename='symlinks/' + image.name)}}">
                     {{ image.name }}
                 </div>
             </div>
@@ -104,7 +106,18 @@
     $('.ui.accordion').accordion();
 
     function add() {
+        $.ajax({
+            type: "POST",
+            url: "/add",
+            data: { path: $("#newPath").val() },
+            success: function (status) {
+                // If positive status
+                if (status >= 0) {
+                    // Display a progress bar and a list with processed images
 
+                }
+            }
+        });
     };
 
     function remove(id) {
