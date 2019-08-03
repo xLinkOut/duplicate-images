@@ -10,7 +10,7 @@
 <div class="ui right action left icon fluid input">
     <i class="folder icon"></i>
     <input id="newPath" type="text" placeholder="/home/User/Pictures">
-    <div class="ui floating positive button" onclick="add()">
+    <div class="ui floating positive button" onclick="add()" id="divBtnAddPath">
         <div class="text">Add</div>
     </div>
 </div>
@@ -43,6 +43,7 @@
 </h4>
 
 <div class="ui fluid styled accordion">
+    {% if data|length %}
     {% for path,images in data.items() %}
     <div class="title">
         <i class="dropdown icon"></i>
@@ -65,6 +66,15 @@
         </div>
     </div>
     {% endfor %}
+    {% else %}
+    <div class="ui placeholder segment">
+        <div class="ui icon header">
+            <i class="images outline icon"></i>
+            No photos are stored in database.
+        </div>
+        <!-- <div class="ui primary button">Add New Path</div> -->
+    </div>
+    {% endif %}
 </div>
 
 <!-- GRID VIEW
@@ -106,13 +116,14 @@
 -->
 
 <script>
+    
     $('.ui.accordion').accordion();
     //var pathRegex = new RegExp("^\/([A-z0-9-_+]+\/)*([A-z0-9]+\.(txt|zip))$")
     var refreshIntervalId = null;
     var last = 0;
 
     function add() {
-        if($("#newPath").val() != ""){
+        if ($("#newPath").val() != "") {
             $.ajax({
                 type: "POST",
                 url: "/add",
@@ -122,7 +133,7 @@
                     if (response['status'] >= 0) {
                         console.log(response['counter']);
                         $("#progress").removeClass("transition hidden")
-                        $('#progress').progress({ 
+                        $('#progress').progress({
                             total: response['counter'],
                             text: {
                                 active: "Hashing {value} of {total} images",
@@ -146,7 +157,7 @@
                     for (i = 0; i < (last - update); i++)
                         $("#progress").progress('increment');
                 last = update;
-                if (update == 0){clearInterval(refreshIntervalId); location.reload();}
+                if (update == 0) { clearInterval(refreshIntervalId); location.reload(); }
             }
         });
     };

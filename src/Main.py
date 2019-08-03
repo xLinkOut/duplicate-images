@@ -213,7 +213,7 @@ def folders():
                 'image_size': image.image_size,
                 'capture_time': image.capture_time
             })
-
+            
     return render_template("folders.html",data=response)
 
 # Start Flask web server
