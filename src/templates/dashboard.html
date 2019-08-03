@@ -1,4 +1,31 @@
 {% extends "layout.html" %}
 {% block body %}
+
 A bunch of counter and spinning animation that act cool.
+<div class="ui statistics">
+    <div class="statistic">
+      <div class="value">
+        {{statistics['path']}}
+      </div>
+      <div class="label">
+        Path analyzed
+      </div>
+    </div>
+    <div class="statistic">
+      <div class="value">
+        {{statistics['images']}}
+      </div>
+      <div class="label">
+        Images stored
+      </div>
+    </div>
+    <div class="statistic">
+      <div class="value">
+        {{statistics['duplicates']}}
+      </div>
+      <div class="label">
+        Duplicates found
+      </div>
+    </div>
+  </div>
 {% endblock %}

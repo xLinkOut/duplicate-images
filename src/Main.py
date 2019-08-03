@@ -37,6 +37,16 @@ class Files(db.Model):
         return "<Files {0},{1},{2},{3},{4},{5},{6}>" \
             .format(self.id,self.path,self.name,self.hashes,self.file_size,self.image_size,self.capture_time)
 
+class Statistics(db.Model):
+    id = db.Column(db.Integer,primary_key = True)
+    pathAnalyzed = db.Column(db.Integer)
+    imagesStored = db.Column(db.Integer)
+    duplicatesFound = db.Column(db.Integer)
+    
+    def __repr__(self):
+        return "<Statistics {0}, {1}, {2}>" \
+            .format(self.pathAnalyzed, self.imagesStored, self.duplicatesFound)
+
 # Create all tables into DB
 db.create_all()
 
@@ -44,7 +54,13 @@ db.create_all()
 @app.route('/')
 @app.route('/dashboard/')
 def index():
-   return render_template("dashboard.html")
+    statistics = db.session.query(Statistics).first()
+    statistics = {
+        'path': statistics.pathAnalyzed,
+        'images': statistics.imagesStored,
+        'duplicates': statistics.duplicatesFound
+    }
+    return render_template("dashboard.html", statistics=statistics)
 
 # Add a path to database
 @app.route('/add', methods=['POST'])
