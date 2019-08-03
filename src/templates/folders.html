@@ -131,8 +131,7 @@
                 success: function (response) {
                     // If positive status
                     if (response['status'] >= 0) {
-                        console.log(response['counter']);
-                        $("#progress").removeClass("transition hidden")
+                        // Display a progress bar and a list with processed images
                         $('#progress').progress({
                             total: response['counter'],
                             text: {
@@ -140,7 +139,7 @@
                                 success: "{total} images hashed!"
                             }
                         });
-                        // Display a progress bar and a list with processed images
+                        $("#progress").removeClass("transition hidden");
                         last = response['counter'];
                         refreshIntervalId = setInterval(function () { updateStatus(response['counter']) }, 500);
                     }

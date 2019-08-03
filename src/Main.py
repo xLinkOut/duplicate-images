@@ -25,9 +25,9 @@ db = SQLAlchemy(app)
 
 # Table "Files" in SQLite DB
 class Files(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    path = db.Column(db.String(512))
-    name = db.Column(db.String(512))
+    id = db.Column(db.Integer)
+    path = db.Column(db.String(512), primary_key = True)
+    name = db.Column(db.String(512), primary_key = True)
     hashes = db.Column(db.String(512))
     file_size = db.Column(db.Integer)
     image_size = db.Column(db.String(128))
@@ -39,9 +39,9 @@ class Files(db.Model):
 
 class Statistics(db.Model):
     id = db.Column(db.Integer,primary_key = True)
-    pathAnalyzed = db.Column(db.Integer)
-    imagesStored = db.Column(db.Integer)
-    duplicatesFound = db.Column(db.Integer)
+    pathAnalyzed = db.Column(db.Integer, default = 0)
+    imagesStored = db.Column(db.Integer, default = 0)
+    duplicatesFound = db.Column(db.Integer, default = 0)
     
     def __repr__(self):
         return "<Statistics {0}, {1}, {2}>" \
@@ -49,6 +49,9 @@ class Statistics(db.Model):
 
 # Create all tables into DB
 db.create_all()
+if not db.session.query(Statistics).first():
+    db.session.add(Statistics(pathAnalyzed=0,imagesStored=0,duplicatesFound=0))
+    db.session.commit()
 
 # Index endpoint, display all images collected in database
 @app.route('/')
@@ -69,7 +72,6 @@ def add():
     imagesList = []
     for image in exploreDir(path):
         imagesList.append(image)
-    print(imagesList)
     # Check if folder exists
     # Process image and add to db
     threading.Thread(target=hashList, args=(imagesList,)).start()
@@ -107,12 +109,14 @@ def hashList(imagesList):
     for path in imagesList:
         #sleep(3) # Here to simulate long time hashing
         data = hashImage(path)
+        
         db.session.add(Files(path = data['path'],
                             name = data['name'],
                             hashes = data['hashes'],
                             file_size = data['file_size'],
                             image_size = data['image_size'],
                             capture_time = data['capture_time']))
+
         tempGlobalStatus.remove(path)
         
         try:
