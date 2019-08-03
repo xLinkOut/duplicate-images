@@ -17,8 +17,11 @@
 
 <!-- PROGRESS DURING ADDING -->
 
-<div id="progress" class="ui indicating blue progress">
-    <div class="bar"></div>
+<div id="progress" class="ui indicating blue progress transition hidden">
+    <div class="bar">
+        <div class="progress"></div>
+    </div>
+    <div class="label">Hashing images</div>
 </div>
 <!--
 
@@ -104,25 +107,35 @@
 
 <script>
     $('.ui.accordion').accordion();
+    //var pathRegex = new RegExp("^\/([A-z0-9-_+]+\/)*([A-z0-9]+\.(txt|zip))$")
     var refreshIntervalId = null;
     var last = 0;
 
     function add() {
-        $.ajax({
-            type: "POST",
-            url: "/add",
-            data: { path: $("#newPath").val() },
-            success: function (response) {
-                // If positive status
-                if (response['status'] >= 0) {
-                    console.log(response['counter']);
-                    $('#progress').progress({ total: response['counter'] });
-                    // Display a progress bar and a list with processed images
-                    last = response['counter'];
-                    refreshIntervalId = setInterval(function () { updateStatus(response['counter']) }, 500);
+        if($("#newPath").val() != ""){
+            $.ajax({
+                type: "POST",
+                url: "/add",
+                data: { path: $("#newPath").val() },
+                success: function (response) {
+                    // If positive status
+                    if (response['status'] >= 0) {
+                        console.log(response['counter']);
+                        $("#progress").removeClass("transition hidden")
+                        $('#progress').progress({ 
+                            total: response['counter'],
+                            text: {
+                                active: "Hashing {value} of {total} images",
+                                success: "{total} images hashed!"
+                            }
+                        });
+                        // Display a progress bar and a list with processed images
+                        last = response['counter'];
+                        refreshIntervalId = setInterval(function () { updateStatus(response['counter']) }, 500);
+                    }
                 }
-            }
-        });
+            });
+        }
     };
 
     function updateStatus(total) {
